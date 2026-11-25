@@ -1,0 +1,40 @@
+bundle: kubernetes
+saas:
+  pg:
+    url: tour-lxd:admin/machines.pg
+applications:
+  data-integrator:
+    charm: data-integrator
+    channel: latest/stable
+    revision: 418
+    scale: 1
+    options:
+      database-name: tour
+    constraints: arch=amd64
+  postgresql-k8s:
+    charm: postgresql-k8s
+    channel: 16/stable
+    revision: 957
+    resources:
+      postgresql-image: 207
+    scale: 1
+    constraints: arch=amd64
+    storage:
+      archive: kubernetes,1,1024M
+      data: kubernetes,1,1024M
+      logs: kubernetes,1,1024M
+      temp: kubernetes,1,1024M
+    trust: true
+  remote-di:
+    charm: data-integrator
+    channel: latest/stable
+    revision: 418
+    scale: 1
+    options:
+      database-name: crossdb
+    constraints: arch=amd64
+relations:
+- - data-integrator:postgresql
+  - postgresql-k8s:database
+- - remote-di:postgresql
+  - pg:database

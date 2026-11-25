@@ -1,0 +1,46 @@
+default-base: ubuntu@24.04/stable
+saas:
+  remote-f84d9cf89dd44fee825c525d3b896c8c: {}
+applications:
+  data-integrator:
+    charm: data-integrator
+    channel: latest/stable
+    revision: 418
+    num_units: 1
+    to:
+    - "1"
+    options:
+      database-name: tour
+    constraints: arch=amd64
+  postgresql:
+    charm: postgresql
+    channel: 16/stable
+    revision: 1218
+    num_units: 1
+    to:
+    - "0"
+    constraints: arch=amd64
+    storage:
+      archive: rootfs,1,1024M
+      data: rootfs,1,1024M
+      logs: rootfs,1,1024M
+      temp: rootfs,1,1024M
+machines:
+  "0":
+    constraints: arch=amd64
+  "1":
+    constraints: arch=amd64
+relations:
+- - data-integrator:postgresql
+  - postgresql:database
+- - postgresql:database
+  - remote-f84d9cf89dd44fee825c525d3b896c8c:postgresql
+--- # overlay.yaml
+applications:
+  postgresql:
+    offers:
+      pg:
+        endpoints:
+        - database
+        acl:
+          admin: admin
